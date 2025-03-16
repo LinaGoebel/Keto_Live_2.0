@@ -1,0 +1,248 @@
+openapi: 3.0.0
+info:
+  title: Keto Live 2.0 API
+  description: API для управления пользователями, рецептами, продуктами и интервальным голоданием.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер разработки
+paths:
+  # Аутентификация
+  /api/auth/register:
+    post:
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Иван"
+                email:
+                  type: string
+                  example: "ivan@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        '200':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "Иван"
+                  email:
+                    type: string
+                    example: "ivan@example.com"
+
+  /api/auth/login:
+    post:
+      summary: Авторизация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "ivan@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+  # Рецепты
+  /api/recipes:
+    get:
+      summary: Получить все рецепты
+      responses:
+        '200':
+          description: Список рецептов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "Авокадо с яйцом"
+                    category:
+                      type: string
+                      example: "Завтрак"
+                    ingredients:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "авокадо", "яйцо", "соль" ]
+
+    post:
+      summary: Добавить новый рецепт
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Омлет с сыром"
+                category:
+                  type: string
+                  example: "Завтрак"
+                ingredients:
+                  type: array
+                  items:
+                    type: string
+                  example: [ "яйцо", "сыр", "соль" ]
+      responses:
+        '200':
+          description: Рецепт успешно добавлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 3
+                  name:
+                    type: string
+                    example: "Омлет с сыром"
+                  category:
+                    type: string
+                    example: "Завтрак"
+                  ingredients:
+                    type: array
+                    items:
+                      type: string
+                    example: [ "яйцо", "сыр", "соль" ]
+
+  # Продукты
+  /api/products:
+    get:
+      summary: Получить список продуктов
+      responses:
+        '200':
+          description: Список продуктов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    name:
+                      type: string
+                      example: "Авокадо"
+                    category:
+                      type: string
+                      example: "можно"
+
+  # Интервальное голодание
+  /api/fasting/start:
+    post:
+      summary: Начать интервальное голодание
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2023-10-01T08:00:00Z"
+      responses:
+        '200':
+          description: Голодание начато
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  startTime:
+                    type: string
+                    format: date-time
+                    example: "2023-10-01T08:00:00Z"
+                  endTime:
+                    type: string
+                    format: date-time
+                    example: null
+                  duration:
+                    type: integer
+                    example: 0
+
+  /api/fasting/end:
+    post:
+      summary: Завершить интервальное голодание
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2023-10-01T16:00:00Z"
+      responses:
+        '200':
+          description: Голодание завершено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  startTime:
+                    type: string
+                    format: date-time
+                    example: "2023-10-01T08:00:00Z"
+                  endTime:
+                    type: string
+                    format: date-time
+                    example: "2023-10-01T16:00:00Z"
+                  duration:
+                    type: integer
+                    example: 8

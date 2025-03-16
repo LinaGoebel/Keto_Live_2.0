@@ -1,0 +1,57 @@
+### Регистрация пользователя
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Иван",
+  "email": "ivan@example.com",
+  "password": "password123"
+}
+
+### Авторизация пользователя
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ivan@example.com",
+  "password": "password123"
+}
+
+### Получить все рецепты
+GET http://localhost:8080/api/recipes
+Accept: application/json
+
+### Добавить новый рецепт
+POST http://localhost:8080/api/recipes
+Content-Type: application/json
+
+{
+  "name": "Омлет с сыром",
+  "category": "Завтрак",
+  "ingredients": [
+    "яйцо",
+    "сыр",
+    "соль"
+  ]
+}
+
+### Получить список продуктов
+GET http://localhost:8080/api/products
+Accept: application/json
+
+### Начать интервальное голодание
+POST http://localhost:8080/api/fasting/start
+Content-Type: application/json
+
+{
+  "startTime": "2023-10-01T08:00:00Z"
+}
+
+### Завершить интервальное голодание
+POST http://localhost:8080/api/fasting/end
+Content-Type: application/json
+
+{
+  "id": 1,
+  "endTime": "2023-10-01T16:00:00Z"
+}
