@@ -1,9 +1,7 @@
 package com.ketolive.controller;
 
 import com.ketolive.model.User;
-import com.ketolive.repository.UserRepository;
 import com.ketolive.service.UserService;
-import com.ketolive.util.JwUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
