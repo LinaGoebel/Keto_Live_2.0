@@ -15,7 +15,4 @@ public class User {
     private String email;
     private String password;
 
-    public void setPassword(String password) {
-        this.password = PasswordUtil.hashPassword(password);
-    }
 }

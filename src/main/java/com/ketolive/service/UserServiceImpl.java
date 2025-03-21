@@ -7,6 +7,8 @@ import com.ketolive.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -18,15 +20,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(User user) {
-        return userRepository.save(user);
+        user.setPassword(PasswordUtil.hashPassword(user.getPassword())); // Хешируем пароль
+        return userRepository.save(user); // Сохраняем пользователя в базу данных
     }
 
     @Override
     public String login(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user != null && PasswordUtil.checkPassword(password, user.getPassword())) {
-            return jwtUtil.generateToken(email);
+        Optional<User> userOptional = userRepository.findByEmail(email); // Ищем пользователя по email
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (PasswordUtil.checkPassword(password, user.getPassword())) { // Проверяем пароль
+                return jwtUtil.generateToken(user.getEmail()); // Генерируем JWT
+            }
         }
-        return "Ошибка авторизации";
+        throw new RuntimeException("Invalid email or password"); // Если пользователь не найден или пароль неверный
     }
 }

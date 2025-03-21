@@ -1,4 +1,0 @@
-package com.ketolive.repository;
-
-public interface FastingRepository {
-}
