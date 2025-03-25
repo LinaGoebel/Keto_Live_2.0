@@ -1,20 +1,19 @@
 package com.ketolive.controller;
 
 import com.ketolive.model.Fasting;
-import com.ketolive.model.User;
-import com.ketolive.repository.UserRepository;
 import com.ketolive.service.FastingService;
-import com.ketolive.util.JwUtil;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/fasting")
@@ -23,41 +22,36 @@ public class FastingController {
     @Autowired
     private FastingService fastingService; // Сервис для работы с голоданием
 
-    @Autowired
-    private JwUtil jwtUtil; // Сервис для работы с JWT
-    @Autowired
-    private UserRepository userRepository;
 
     @PostMapping("/start")
-    public Fasting startFasting(@RequestHeader("Authorization") String token) {
-        String userId = getUserIdFromToken(token); // Получаем ID пользователя из токена
-        return fastingService.startFasting(userId); // Начинаем голодание
+    public ResponseEntity<Fasting> startFasting(
+            @RequestBody Fasting fasting, @AuthenticationPrincipal UserDetails userDetails) {
+        Fasting createdFasting = fastingService.startFasting(fasting, userDetails.getUsername());
+        return new ResponseEntity<>(createdFasting, HttpStatus.CREATED);
+
     }
 
-    @PostMapping("/end")
-    public Fasting endFasting(@RequestHeader("Authorization") String token) {
-        String userId = getUserIdFromToken(token); // Получаем ID пользователя из токена
-        return fastingService.endFasting(userId); // Завершаем голодание
+
+    @PostMapping("/{fastingId}/end")
+    public ResponseEntity<Fasting> endFasting(@RequestBody String fastingId,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
+        Fasting endedFasting = fastingService.endFasting(fastingId, userDetails.getUsername());
+        return ResponseEntity.ok(endedFasting);
     }
 
-    @GetMapping("/history")
-    public List<Fasting> getFastingHistory(@RequestHeader("Authorization") String token) {
-        String userId = getUserIdFromToken(token); // Получаем ID пользователя из токена
-        return fastingService.getFastingHistory(userId); // Получаем историю голодания
-    }
+    @GetMapping("/active")
+    public ResponseEntity<Fasting> getActiveFasting(@AuthenticationPrincipal UserDetails userDetails) {
+        Fasting activeFasting = fastingService.getActiveFasting(userDetails.getUsername());
 
-    private String getUserIdFromToken(String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // Убираем "Bearer " из токена
-            Claims claims = jwtUtil.parseToken(token); // Парсим токен
-            String email = claims.getSubject(); // Извлекаем email из токена
-            Optional<User> userOptional = userRepository.findByEmail(email);// Ищем пользователя по email
-            if (userOptional.isPresent()) {
-                return userOptional.get().getId(); // Возвращаем ID пользователя
-            } else {
-                throw new RuntimeException("User not found"); // Если пользователь не найден, выбрасываем исключение
-            }
+        if (activeFasting == null) {
+            return ResponseEntity.noContent().build();
         }
-        throw new RuntimeException("Invalid token"); // Если токен невалиден, выбрасываем исключение
+        return ResponseEntity.ok(activeFasting);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<Fasting>> getUserFastings(@AuthenticationPrincipal UserDetails userDetails) {
+        List<Fasting> fastings = fastingService.getUserFastings(userDetails.getUsername());
+        return ResponseEntity.ok(fastings);
     }
 }
